@@ -1,0 +1,207 @@
+<html>
+  <head>
+    <style>
+      table, th, td {
+        border: 1px solid black;
+        border-collapse: collapse;
+      }
+      th, td {
+        padding: 5px;
+        text-align: left;
+      }
+      html{width:100%;height:100%;} 
+      body{background:#fff;font-size:18px;font-family:"Arial", "Tahoma", "微软雅黑", "雅黑";
+        line-height:18px;padding:0px;margin:0px;text-align:center} 
+      div{padding:18px} 
+      img{border:0px;vertical-align:middle;padding:0;margin:0} 
+      input, button{font-family:"Arial", "Tahoma", "微软雅黑", "雅黑";border:0;
+         vertical-align:middle;margin:8px;line-height:28px;font-size:18px} 
+      .btn{width:340px;height:26px;line-height:18px;font-size:18px;
+        background:url("bg26.jpg") no-repeat left top;color:#FFF;padding-bottom:4px} 
+    </style>
+<title>etcd func addr stat</title>
+<body>
+  <p id="server_stat" style="display:none;">
+    <%- ret_data %>
+  </p>
+</body>
+
+<script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+<script src="http://code.jquery.com/ui/1.11.2/jquery-ui.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script>
+      var _table_ = document.createElement('table'),
+      _tr_ = document.createElement('tr'),
+      _th_ = document.createElement('th'),
+      _td_ = document.createElement('td'),
+      _tn_ = document.createElement("BUTTON");
+
+      ////////////////////////////////////////////////////////////////
+      var objbody = document.body;
+      var ret_data = document.getElementById("server_stat").innerHTML;
+      console.log("ret_data:", ret_data);
+      var ret_obj = JSON.parse(ret_data);
+
+      var table = buildHtmlTable(ret_obj);
+      objbody.appendChild(table);
+      console.log("add table:", table);
+
+      // Builds the HTML Table out of myList json data from Ivy restful service.
+      function buildHtmlTable(result) {
+          var arr = result;
+          var table = _table_.cloneNode(false);
+          table.setAttribute('id', 'interface_table');
+          table.setAttribute('style', 'width:50%');
+          //table.setAttribute('white-space', 'nowrap');
+          table.setAttribute('align', 'center');
+          {
+            var td_head =  _td_.cloneNode(false);
+            var tr_head = _tr_.cloneNode(false);
+            td_head.appendChild(document.createTextNode("Interface Stat"));
+            td_head.setAttribute('colspan', 4);
+            td_head.setAttribute('bgcolor', '#00FF00');
+            td_head.setAttribute('style', 'text-align:center;vertical-align:middle');
+
+            tr_head.appendChild(td_head);
+            table.appendChild(tr_head);
+          }
+
+          var tr = _tr_.cloneNode(false);
+          var th = _th_.cloneNode(false);
+          th.appendChild(document.createTextNode('function'));
+          tr.appendChild(th);
+          th = _th_.cloneNode(false);
+          th.appendChild(document.createTextNode('server'));
+          tr.appendChild(th);
+          th = _th_.cloneNode(false);
+          th.appendChild(document.createTextNode('access'));
+          tr.appendChild(th);
+          th = _th_.cloneNode(false);
+          th.appendChild(document.createTextNode('status'));
+          tr.appendChild(th);
+
+          tr.setAttribute('bgcolor', '#00FF00');
+          table.appendChild(tr);
+
+          addAllColumnHeaders(arr, table);
+          return table;
+      }
+
+      // Adds a header row to the table and returns the set of columns.
+      // Need to do union of keys from all records as some records may not contain
+      // all records
+      function addAllColumnHeaders(result, table)
+      {
+
+        var obj_count = result.length;
+
+        for (var tb_len = 0; tb_len < obj_count; tb_len++) {
+
+          for (key in result[tb_len]) {
+            var arr = result[tb_len];
+            var value_cont = arr[key].length;
+            var bool_set_key = false;
+            for (var i = 0; i < value_cont; i++) {
+              var td = _td_.cloneNode(false);
+              var tr = _tr_.cloneNode(false);
+              if (!bool_set_key) {
+                var vtd = _td_.cloneNode(false);
+                vtd.setAttribute('rowSpan', value_cont);
+                vtd.appendChild(document.createTextNode(key));
+                bool_set_key = true;
+                tr.appendChild(vtd);
+              }
+              var obj = arr[key][i];
+              if (!obj.key || !obj.value) {
+                 console.log("find a err obj:", obj);
+                 //return;
+              }
+
+              var link = document.createElement("a");
+              link.href = "/stat/GetServerInfo?key=" + obj.key;
+              link.innerHTML = obj.key;
+
+              // td.appendChild(document.createTextNode(obj.key));
+              td.appendChild(link);
+              tr.appendChild(td);
+
+              var td = _td_.cloneNode(false);
+              td.appendChild(document.createTextNode(obj.accecc_num));
+              tr.appendChild(td);
+
+              td = _td_.cloneNode(false);
+              btn = _tn_.cloneNode(false);
+              var t = document.createTextNode(obj.value == 1?"enable":"disabled");
+              var btn_id = key + "_" + obj.key;
+              btn.setAttribute("onclick", "SetInterfaceStat('" + btn_id + "')")
+              btn.setAttribute('id', btn_id);
+              btn.setAttribute('value', obj.value);
+              if (0 == obj.value) {
+                btn.setAttribute('style', "background:green;color:red");
+              }
+              btn.appendChild(t);
+              td.appendChild(btn);
+              tr.appendChild(td);
+              table.appendChild(tr);
+            }
+          }
+        }
+        table.appendChild(tr);
+        console.log("table:", table);
+        return table;
+      }
+
+      function SetInterfaceStat(id) {
+        var data =  document.getElementById(id)
+        var value = data.value;
+        if (!value) {
+          console.log("err for value:", value);
+          return;
+        }
+        console.log("id:", id, "data:", data, "value:", value);
+
+        var post_url = "/stat/SetFuncServerStat";
+        var set_data = {}
+        set_data["key"] = id;
+        set_data["value"] = value == "1" ?"0":"1";
+        var post_data = JSON.stringify(set_data);
+        console.log("start post key:", post_url, "data:", post_data);
+        $.post(post_url,
+        {
+          data: post_data
+        },
+        function(result, status){
+          var data = JSON.parse(result);
+          console.log("post key:", post_url, "data:", post_data, " resp data:", data, " status:", status);
+          if (!data.func || !data.addr || !data.value) {
+            console.log("err data :", data)
+            return;
+          }
+          var _btn =  document.getElementById(data.func + "_" + data.addr)
+          if (_btn) {
+            _btn.firstChild.data = data.value == 1?"enable":"disabled";
+            _btn.setAttribute('value', data.value);
+            if (0 == data.value) {
+              _btn.setAttribute('style', "background:green;color:red");
+              } else {
+              _btn.setAttribute('style', "");
+            }
+          }
+        });
+      }
+
+   </script>
+   <input type="hidden" id="refreshed" value="no">
+   <script type="text/javascript">
+     onload=function(){
+       var e=document.getElementById("refreshed");
+       if(e.value=="no")
+       e.value="yes";
+       else{
+         e.value="no";location.reload();
+       }
+     }
+   </script>
+  </head>
+</html>
+

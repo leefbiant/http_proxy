@@ -1,0 +1,39 @@
+<!doctype html>
+<html>
+  <head>
+    <script type="text/javascript" src="/dygraphs/dist/dygraph.js"></script>
+    <link rel="stylesheet" src="/dygraphs/dist/dygraph.css" />
+  </head>
+
+  <body>
+    <p id="datas" style="display:none;">
+    <%- datas %>
+    </p>
+    <p>今日总人次:<%- all_cnt %> </p>
+    <!--[if lte IE 8]>
+    <script src="excanvas.js"></script>
+    <![endif]-->
+    <div id="the_chart" style="width: 61.8%"></div>
+    <script>
+      var datas = document.getElementById("datas").innerHTML;
+      var datas = JSON.parse(datas)
+      var data_temp="Date,cnt\n";
+      for(var i = 0; i < datas.length;i++)
+      { 
+        data_temp+=datas[i].label+","+datas[i].cnt+"\n";
+      }
+      console.log("data_temp:",data_temp);
+
+      window.onload= function () {
+        new Dygraph(
+        document.getElementById("the_chart"),
+        data_temp,
+         {
+         }
+        );
+      }
+
+    </script>
+
+  </body>
+</html>

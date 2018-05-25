@@ -1,0 +1,71 @@
+<html>
+  <head>
+    <meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
+    <title>Plain Shane Design > CSS Drop Down Demo</title>
+    <style type="text/css">
+      #navcont {
+        background: #fff;
+        width: 100%;
+      }
+      #nav {
+        width:720;
+        font-size:24px;
+        margin: 100 auto;
+      }
+      #nav ul {
+        list-style-type:none;
+      }
+      #nav ul li {
+        float:left;
+        position: relative;
+      }
+      #nav ul li a {
+        border-right:1px solid #e9e9e9;
+        padding:20px;
+        display:block;
+        text-decoration:none;
+        text-align:left;
+        color:#00A2CA
+      }
+
+      #nav ul li ul {
+        display: none;
+      }
+      #nav ul li:hover ul {
+        display: block;
+        position: absolute;
+        top:56px;
+        min-width:290px;
+        left:0;
+      }
+      #nav ul li:hover ul li a {
+        display:block;
+        background:#00A2CA;
+        color:#ffffff;
+        width: 240;
+        text-align:
+        center;
+        border-bottom: 1px solid #f2f2f2;
+        border-right: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="navcont"> 
+      <div id="nav"> 
+        <ul>
+          <li class="borderleft"><a href="/stat" target="_blank">接口统计</a></li>
+          <li><a href="/stat/ErrInterface" target="_blank">错误统计</a></li>
+          <li><a>服务器列表</a>
+          <ul>
+           <%- server_list %>
+          </ul>
+          </li> 
+          <li><a href="/stat/zxtIM" target="_blank">访问统计</a></li>
+
+        </ul>
+      </div>
+    </div>
+  </body>
+</html>
+

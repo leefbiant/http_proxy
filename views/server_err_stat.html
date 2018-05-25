@@ -1,0 +1,106 @@
+<html>
+  <head>
+    <style>
+      table, th, td {
+        border: 1px solid black;
+        border-collapse: collapse;
+      }
+      th, td {
+        padding: 5px;
+        text-align: left;
+      }
+      html{width:100%;height:100%;} 
+      body{background:#fff;font-size:18px;font-family:"Arial", "Tahoma", "微软雅黑", "雅黑";
+        line-height:18px;padding:0px;margin:0px;text-align:center} 
+      div{padding:18px} 
+      img{border:0px;vertical-align:middle;padding:0;margin:0} 
+      input, button{font-family:"Arial", "Tahoma", "微软雅黑", "雅黑";border:0;
+         vertical-align:middle;margin:8px;line-height:28px;font-size:18px} 
+      .btn{width:340px;height:26px;line-height:18px;font-size:18px;
+        background:url("bg26.jpg") no-repeat left top;color:#FFF;padding-bottom:4px} 
+    </style>
+<title>etcd func addr stat</title>
+<body>
+  <p id="err_func_info" style="display:none;">
+    <%- err_func_info %>
+  </p>
+</body>
+
+<script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+<script src="http://code.jquery.com/ui/1.11.2/jquery-ui.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script>
+      var _table_ = document.createElement('table'),
+      _tr_ = document.createElement('tr'),
+      _th_ = document.createElement('th'),
+      _td_ = document.createElement('td'),
+      _tn_ = document.createElement("BUTTON");
+
+
+      var ret_err_data = document.getElementById("err_func_info").innerHTML;
+      console.log("ret_err_data:", ret_err_data);
+      var objbody = document.body;
+      var ret_err_obj = JSON.parse(ret_err_data);
+      if (ret_err_obj['size'] > 0) {
+        var ret_arry = ret_err_obj['data'];
+
+        var table = _table_.cloneNode(false);
+        table.setAttribute('id', 'interface_table');
+        table.setAttribute('style', 'width:50%');
+        table.setAttribute('align', 'center');
+        {
+          var td_head =  _td_.cloneNode(false);
+          var tr_head = _tr_.cloneNode(false);
+          td_head.appendChild(document.createTextNode("Error Interface Stat"));
+          td_head.setAttribute('colspan', 2);
+          td_head.setAttribute('bgcolor', '#00FF00');
+          td_head.setAttribute('style', 'text-align:center;vertical-align:middle');
+
+          tr_head.appendChild(td_head);
+          table.appendChild(tr_head);
+        }
+
+
+        var tr = _tr_.cloneNode(false);
+        var th = _th_.cloneNode(false);
+        th.appendChild(document.createTextNode('function'));
+        tr.appendChild(th);
+        th = _th_.cloneNode(false);
+        th.appendChild(document.createTextNode('num'));
+        tr.appendChild(th);
+        th = _th_.cloneNode(false);
+        tr.setAttribute('bgcolor', '#00FF00');
+        table.appendChild(tr);
+
+        for (var cnt = 0; cnt < ret_arry.length; cnt++) {
+          var td = _td_.cloneNode(false);
+          var tr = _tr_.cloneNode(false);
+          td.appendChild(document.createTextNode(ret_arry[cnt].func));
+          tr.appendChild(td);
+          var td = _td_.cloneNode(false);
+          td.appendChild(document.createTextNode(ret_arry[cnt].cnt));
+          tr.appendChild(td);
+          table.appendChild(tr);
+        }
+        console.log("add table:", table);
+        objbody.appendChild(table);
+        } else {
+        var objbody = document.body;
+        objbody.innerHTML = "没有错误接口";
+      }
+
+  </script>
+   <input type="hidden" id="refreshed" value="no">
+   <script type="text/javascript">
+     onload=function(){
+       var e=document.getElementById("refreshed");
+       if(e.value=="no")
+       e.value="yes";
+       else{
+         e.value="no";location.reload();
+       }
+     }
+   </script>
+  </head>
+</html>
+
